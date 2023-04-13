@@ -48,6 +48,10 @@ const thoughtSchema = new Schema(
       default: Date.now,
       get: (createdAtVal) => moment(createdAtVal).format('MMM DD, YYYY [at] hh:mm a'),
     },
+    username: {
+      type: String,
+      required: true,
+    },
     reactions: [reactionSchema],
   },
   {
@@ -58,8 +62,7 @@ const thoughtSchema = new Schema(
   }
 );
 
-
-thoughtSchema.virtual('formattedDate').get(function () {
+thoughtSchema.virtual('reactionCount').get(function () {
   return this.reactions.length;
 });
 
