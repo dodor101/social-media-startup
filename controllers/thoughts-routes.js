@@ -26,10 +26,10 @@ const getAllThoughts = async (req, res) => {
 // Route to find a single thought
 const getThoughtById = async (req, res) => {
   try {
-    const thought = await Thought.findOne({ _id: req.params.thoughtId });
+    const thought = await Thought.findOne({ id: req.params._id });
 
     if (!thought) {
-      res.status(404).json({ message: `Couldn't find thought with this ID` });
+      return res.status(404).json({ message: `Couldn't find thought with this ID` });
     }
     res.status(200).json(thought);
   } catch (error) {
@@ -41,12 +41,13 @@ const getThoughtById = async (req, res) => {
 // route to update a thought
 const updateThought = async (req, res) => {
   try {
-    const thought = await Thought.findOneAndUpdate({ _id: req.params.id }, { body: req.body }, { new: true });
+    const thought = await Thought.findOneAndUpdate({ id: req.params._id }, req.body, { new: true });
     if (!thought) {
-      res.status(404).json({ message: `No thought with this ID is found` });
+      return res.status(404).json({ message: `Could not update thought` });
     }
     res.status(200).json(thought);
   } catch (error) {
+    console.log(error);
     res.status(400).json(error);
   }
 };
@@ -64,6 +65,44 @@ const deleteThought = async (req, res) => {
   }
 };
 
+// function for creating a reaction
+const createReaction = async (req, res) => {
+  try {
+    const thought = await Thought.findOneAndUpdate(
+      { id: req.params._id },
+      { $push: { reactions: req.body } },
+      { runValidators: true, new: true }
+    )
+      .populate({ path: 'reactions', select: '-__v' })
+      .select('-__v');
+
+    if (!thought) {
+      return res.status(404).json({ message: `Thought not found with this ID` });
+    }
+    res.status(200).json(thought);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+const deleteReaction = async (req, res) => {
+  try {
+    const thought = await Thought.findOneAndUpdate(
+      { id: req.params._id },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { runValidators: true, new: true }
+    );
+    if (!thought) {
+      return res.status(404).json({ message: `The is no thought with this ID` });
+    }
+    res.status(200).json(thought);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
 // exports these functions to be used in a different file.
 module.exports = {
   createThought,
@@ -71,4 +110,6 @@ module.exports = {
   getThoughtById,
   updateThought,
   deleteThought,
+  createReaction,
+  deleteReaction,
 };
