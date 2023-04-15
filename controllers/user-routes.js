@@ -30,8 +30,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.params.id });
-
+    const user = await User.findOne({ id: req.params._id });
     if (!user) {
       return res.status(404).json({ message: `Couldn't find user with this ID` });
     }
