@@ -1,4 +1,5 @@
 const { User } = require('../models');
+const { populate } = require('../models/Thought');
 
 // create a user route
 
@@ -30,7 +31,9 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findOne({ id: req.params._id });
+    const user = await User.findOne({ _id: req.params.id })
+      .populate({ path: 'friends' })
+      .populate({ path: 'thoughts' });
     if (!user) {
       return res.status(404).json({ message: `Couldn't find user with this ID` });
     }
