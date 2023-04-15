@@ -1,4 +1,3 @@
-const Router = require('express').Router();
 const { User } = require('../models');
 
 // create a user route
@@ -16,13 +15,10 @@ const createUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({})
-      .populate({ path: 'thoughts', select: '-__v' })
-      // populate user friends
-      .populate({ path: 'friends', select: '-__v' })
-      .select('-__v');
+    const users = await User.find({});
+
     if (!users) {
-      res.status(404).json({ message: "Couldn't find users" });
+      return res.status(404).json({ message: "Couldn't find users" });
     }
     res.status(200).json(users);
   } catch (error) {
@@ -34,13 +30,10 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.params.id })
-      .populate({ path: 'thoughts', select: '-__v' })
-      .populate({ path: 'friends', select: '-__v' })
-      .select('-__v');
+    const user = await User.findOne({ _id: req.params.id });
 
     if (!user) {
-      res.status(404).json({ message: `Couldn't find user with this ID` });
+      return res.status(404).json({ message: `Couldn't find user with this ID` });
     }
 
     res.status(200).json(user);
@@ -52,9 +45,9 @@ const getUserById = async (req, res) => {
 // route to update a user
 const updateUser = async (req, res) => {
   try {
-    const user = await User.findOneAndUpdate({ _id: req.params.id }, { body: req.body }, { new: true });
+    const user = await User.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
     if (!user) {
-      res.status(404).json({ message: `No user with this ID is found` });
+      return res.status(404).json({ message: `No user with this ID is found` });
     }
     res.status(200).json(user);
   } catch (error) {
@@ -68,13 +61,48 @@ const deleteUser = async (req, res) => {
   try {
     const user = await User.findOneAndDelete({ _id: req.params.id }, { new: true });
     if (!user) {
-      res.status(404).json({ message: `No user with this ID is found` });
+      return res.status(404).json({ message: `No user with this ID is found` });
     }
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json(error);
   }
 };
+
+// route for add a friend
+const createFriend = async (req, res) => {
+  try {
+    const addFriend = await User.findOneAndUpdate(
+      { _id: req.params.id },
+      { $addToSet: { friends: req.params.friendId } },
+      { new: true }
+    );
+    if (!addFriend) {
+      return res.status(404).json(addFriend);
+    }
+    res.status(200).json(addFriend);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
+// route for deleting a friend
+const deleteFriend = async (req, res) => {
+  try {
+    const removeFriend = await User.findOneAndUpdate(
+      { _id: req.params.id },
+      { $pull: { friends: req.params.friendId } },
+      { runValidators: true, new: true }
+    );
+    if (!removeFriend) {
+      res.status(404).json({ message: `Couldn't delete friend` });
+      return;
+    }
+    res.status(200).json(removeFriend);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
+
 // exports these functions to be used in a different file.
 module.exports = {
   createUser,
@@ -82,4 +110,6 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
+  createFriend,
+  deleteFriend,
 };
