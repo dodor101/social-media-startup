@@ -13,6 +13,7 @@ Duckenson' NoSQL Social Network API "Duckenson & Friends" is a Node.js applicati
 - [Built With](#Built-With)
 - [What I Learned](#What-I-Learned)
 - [Author](#Author)
+- [ YouTube Walkthrough Video](#YouTube-Walkthrough-Video)
 
 # Overview
 
@@ -85,6 +86,10 @@ THEN I am able to successfully create and delete reactions to thoughts and add a
 5. Tested API endpoints using Insomnia.
 6. Worked with HTTP requests and JSON formatted data.
 7. Utilized environment variables and .env files for sensitive data.
+
+## YouTube Walkthrough Video
+
+[Click Here to Watch](https://youtu.be/D63JocSUpUkI)
 
 ## Author
 
